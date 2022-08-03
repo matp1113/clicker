@@ -6,12 +6,16 @@
 #include <QQuickItem>
 #include <QQuickView>
 #include <QMetaObject>
+#include <QDir>
+#include <QVariant>
 #include <memory>
 #include <utility>
 
 #include "movingPoint.h"
 #include "game.h"
-#include "support.h"
+#include "appRoot.h"
+#include "mainwindow.h"
+#include "settings.h"
 
 int main(int argc, char *argv[])
 {
@@ -27,27 +31,12 @@ int main(int argc, char *argv[])
         }
     }
 
-    QQmlApplicationEngine engine;
-    const QUrl url(u"qrc:/clicker/main.qml"_qs);
-    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
-                     &app, [url](QObject *obj, const QUrl &objUrl) {
-        if (!obj && url == objUrl)
-            QCoreApplication::exit(-1);
-    }, Qt::QueuedConnection);
-    engine.load(url);
+    QQmlApplicationEngine *engine = new QQmlApplicationEngine();
 
-    QQuickView view(QUrl::fromLocalFile("Users/Mateusz/Desktop/soft_int_qt/clicker/game.qml"));
-    std::unique_ptr<QObject> item = std::make_unique<QObject>(view.rootObject());
-    std::unique_ptr<Game> myGame = std::make_unique<Game>();
+    AppRoot root(&app, engine);
 
-    QObject::connect(item.get(), SIGNAL(start()), myGame.get(), SLOT(start()));
-
-    std::unique_ptr<Support> support = std::make_unique<Support>(nullptr, std::move(item), std::move(myGame));
-
-//    QQmlContext *rootContext = engine.rootContext();
-//    rootContext->setContextProperty("pointClass", QVariant::fromValue(&myGame));
-
-    //QObject::connect(myGame, SIGNAL(sendCordinates), item, SLOT())
+    QQmlContext *rootContext = engine->rootContext();
+    rootContext->setContextProperty("myAppRoot", QVariant::fromValue(&root));
 
     return app.exec();
 }
