@@ -14,6 +14,7 @@ public:
     void setTime(QString);
     void setSupport(int);
     void save();
+    void sort();
 
 private:
     QString _name = "defaultName";
